@@ -9,8 +9,5 @@
         Position = position;
     }
 
-    public void SetPosition(string position)
-    {
-        Position = position;
-    }
+    
 }

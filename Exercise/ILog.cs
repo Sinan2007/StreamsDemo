@@ -1,4 +1,7 @@
 ﻿public interface ILog
 {
-    void WriteLog(string message);
+    void Save(string message);
+    void PrintLogger();
+
+    void WriteLog();
 }

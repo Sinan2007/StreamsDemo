@@ -3,14 +3,56 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ClosedXML;
+using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Exercise
 {
+
     public class ExcelLog : ILog
+{
+    private List<string> data = new List<string>();
+    string filepath;
+    public ExcelLog(string filepath)
     {
-        public void WriteLog(string message)
+        this.filepath = filepath;
+    }
+    public void PrintLogger()
+    {
+        using (var workbook = new XLWorkbook(filepath))
         {
-            throw new NotImplementedException();
+            var worksheet = workbook.Worksheets.Worksheet("Logger");
+
+            foreach (var row in worksheet.RowsUsed())
+            {
+                Console.WriteLine(row.Cell(1).Value);
+            }
+        }
+    }
+
+    public void Save(string message)
+    {
+        this.data.Add(message);
+    }
+
+    public void WriteLog()
+    {
+        using (var workbook = new XLWorkbook())
+        {
+            var worksheet = workbook.AddWorksheet("Logger");
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                worksheet.Cell(i + 1, 1).Value = data[i];
+                worksheet.Cell(i + 1, 1).Style.Font.SetBold(true);
+            }
+
+            workbook.SaveAs(filepath);
         }
     }
 }
+}
+
+
+

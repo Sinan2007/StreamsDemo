@@ -1,132 +1,90 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-namespace TeamManagementApp
+string command = Console.ReadLine();
+
+List<Team> teams = new List<Team>();
+
+List<IPlayer> players = new List<IPlayer>();
+
+while (command != "exit")
 {
-    class Program
+    string[] commands = command.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+    switch (commands[0])
     {
-        static void Main()
-        {
-            var teams = new Dictionary<string, ITeam>();
-            var players = new Dictionary<string, IPlayer>();
-
-            while (true)
+        case "create_team":
+            Team team = new Team(commands[1]);
+            teams.Add(team);
+            Console.WriteLine($"{team.Name} was created");
+            break;
+        case "create_player":
+            Player player = new Player(commands[1], commands[2]);
+            players.Add(player);
+            Console.WriteLine($"{player.Name} was created");
+            break;
+        case "add_player":
+            var teamToAdd = teams.FirstOrDefault(x => x.Name == commands[1]);
+            if (teamToAdd is null)
             {
-                Console.WriteLine("Enter command:");
-                string command = Console.ReadLine();
-
-                if (command == "exit")
-                {
-                    break;
-                }
-
-                string[] parts = command.Split(' ');
-                switch (parts[0])
-                {
-                    case "create_team":
-                        if (parts.Length == 2)
-                        {
-                            string teamName = parts[1];
-                            if (!teams.ContainsKey(teamName))
-                            {
-                                teams[teamName] = new Team(teamName);
-                                Console.WriteLine($"Team {teamName} created.");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Team {teamName} already exists.");
-                            }
-                        }
-                        break;
-
-                    case "create_player":
-                        if (parts.Length == 3)
-                        {
-                            string playerName = parts[1];
-                            string position = parts[2];
-                            if (!players.ContainsKey(playerName))
-                            {
-                                players[playerName] = new Player(playerName, position);
-                                Console.WriteLine($"Player {playerName} created.");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Player {playerName} already exists.");
-                            }
-                        }
-                        break;
-
-                    case "add_player":
-                        if (parts.Length == 4)
-                        {
-                            string teamName = parts[1];
-                            string playerName = parts[2];
-                            string position = parts[3];
-
-                            if (teams.ContainsKey(teamName) && players.ContainsKey(playerName))
-                            {
-                                IPlayer player = players[playerName];
-                                teams[teamName].AddPlayer(player);
-                                Console.WriteLine($"Player {playerName} added to {teamName}.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Team or player not found.");
-                            }
-                        }
-                        break;
-
-                    case "remove_player":
-                        if (parts.Length == 3)
-                        {
-                            string teamName = parts[1];
-                            string playerName = parts[2];
-
-                            if (teams.ContainsKey(teamName))
-                            {
-                                teams[teamName].RemovePlayer(playerName);
-                                Console.WriteLine($"Player {playerName} removed from {teamName}.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Team not found.");
-                            }
-                        }
-                        break;
-
-                    case "print_team":
-                        if (parts.Length == 2)
-                        {
-                            string teamName = parts[1];
-
-                            if (teams.ContainsKey(teamName))
-                            {
-                                ITeam team = teams[teamName];
-                                Console.WriteLine($"Team {team.Name}:");
-
-                                foreach (var player in team.Players)
-                                {
-                                    Console.WriteLine($"- {player.Name} ({player.Position})");
-                                }
-                                Console.WriteLine("History:");
-                                foreach (var history in team.History)
-                                {
-                                    Console.WriteLine(history);
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Team not found.");
-                            }
-                        }
-                        break;
-
-                    default:
-                        Console.WriteLine("Unknown command.");
-                        break;
-                }
+                Console.WriteLine("The team does not exist.");
+                break;
             }
-        }
+            var playerToAdd = players.FirstOrDefault(x => x.Name == commands[2]);
+            if (playerToAdd is null)
+            {
+                Console.WriteLine("The player does not exist.");
+                break;
+            }
+            teamToAdd.AddPlayer(playerToAdd);
+            Console.WriteLine($"The player {playerToAdd.Name} was added");//
+            break;
+        case "remove_player":
+            var teamToRemove = teams.FirstOrDefault(x => x.Name == commands[1]);
+            if (teamToRemove is null)
+            {
+                Console.WriteLine("The team does not exist.");
+                break;
+            }
+            teamToRemove.RemovePlayer(commands[2]);
+            Console.WriteLine($"The team {teamToRemove.Name} has removed the player");//
+            break;
+        case "print_team":
+            var teamToLog = teams.FirstOrDefault(x => x.Name == commands[1]);
+            if (teamToLog is null)
+            {
+                Console.WriteLine("The team does not exist.");
+                break;
+            }
+            Console.WriteLine("Select type of writing - txt or excel:");
+            try
+            {
+                teamToLog.Log(Console.ReadLine());
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            break;
+        case "print_log_txt":
+            var teamToLogTxt = teams.FirstOrDefault(x => x.Name == commands[1]);
+            if (teamToLogTxt is null)
+            {
+                Console.WriteLine("The team does not exist.");
+                break;
+            }
+            teamToLogTxt.PrintLog(commands[0].Split("_").Last());
+            break;
+        case "print_log_excel":
+            var teamToLogExcel = teams.FirstOrDefault(x => x.Name == commands[1]);
+            if (teamToLogExcel is null)
+            {
+                Console.WriteLine("The team does not exist.");
+                break;
+            }
+            teamToLogExcel.PrintLog(commands[0].Split("_").Last());
+            break;
+        default:
+            Console.WriteLine("The command does not exist.");
+            break;
     }
+    command = Console.ReadLine();
 }

@@ -1,14 +1,48 @@
-﻿public class TxtLog : ILog
+﻿public class TXT : ILog
 {
-    private string FilePath;
+    private List<string> data = new List<string>();
+    string filepath;
 
-    public TxtLog(string filePath)
+    public TXT(string filepath)
     {
-        FilePath = filePath;
+        this.filepath = filepath;
     }
 
-    public void WriteLog(string message)
+    public void Save(string message)
     {
-        File.AppendAllText(FilePath, message + Environment.NewLine);
+        data.Add(message);
+    }
+    public void PrintLogger()
+    {
+        string[] lines = File.ReadAllLines(this.filepath);
+        foreach (string line in lines)
+        {
+            Console.WriteLine(line);
+        }
+    }
+    public void WriteLog()
+    {
+        File.WriteAllLines(this.filepath, data);
+    }
+
+    public void PrintLoggerWithStream()
+    {
+        using (var reader = new StreamReader(filepath))
+        {
+            foreach (var line in reader.ReadToEnd())
+            {
+                Console.WriteLine(line);
+            }
+        }
+    }
+    public void WriteWithStream()
+    {
+        using (var writer = new StreamWriter(filepath))
+        {
+            foreach (var line in data)
+            {
+                writer.WriteLine(data);
+            }
+        }
     }
 }
